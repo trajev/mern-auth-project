@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast'
+import Cookies from 'js-cookie'
 
 
 const Login = () => {
@@ -24,7 +25,8 @@ const Login = () => {
     const resData = await res.json();
 
     if (resData.success) {
-      localStorage.setItem("token", resData.token)
+      // localStorage.setItem("token", resData.token)
+      Cookies.set("token", resData.token);
       toast.success(resData.message)
       navigate("/");
       setFormData({ email: "", password: "" });

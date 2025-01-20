@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import {useNavigate} from "react-router-dom"
+import Cookies from "js-cookie"
 
 const Home = () => {
   const navigate = useNavigate()
@@ -10,7 +11,22 @@ const Home = () => {
   useEffect(() => {
 
     async function getProfile() {
-      const token = localStorage.getItem("token");
+      // const token = localStorage.getItem("token");
+
+      // fetch cookie
+      const token = Cookies.get('token');
+
+
+      if(!token){
+        setTimeout( ()=>{
+          toast("login to access homepage", {icon: "⚠️" } );
+        } , 1 )
+
+        navigate("/login")
+        return;
+      }
+      // console.log( "cookie-data: ", token )
+
       const res = await fetch("http://localhost:3000/user/profile", { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } })
       const resData = await res.json();
       setUser(resData.data)
@@ -22,14 +38,15 @@ const Home = () => {
       toast.error(err.message)
     }
 
-  }, [])
+  }, [ navigate ])
 
-  async function handleDelete(){
+  async function handleLogout(){
     try{
       const res = await fetch("http://localhost:3000/user/logout", {method: "POST"}  )
       const resData = await res.json();
       toast.success( resData.message );
-      localStorage.removeItem("token");
+      // localStorage.removeItem("token");
+      Cookies.remove("token");
       navigate("/login");
     } catch(err){
       toast.error( err.message );
@@ -37,6 +54,7 @@ const Home = () => {
   }
 
   return (
+
     <div className="w-screen h-screen flex flex-col gap-12 items-center justify-center dark:bg-zinc-900 dark:text-white px-4">
       <h1 className="text-5xl font-semibold">Welcome to Home Page</h1>
 
@@ -51,7 +69,7 @@ const Home = () => {
         )}
       </div>
 
-      <button onClick={handleDelete} className="px-6 py-2 mt-4 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300">
+      <button onClick={handleLogout} className="px-6 py-2 mt-4 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition duration-300">
         Log Out
       </button>
 

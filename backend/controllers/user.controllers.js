@@ -71,7 +71,11 @@ const loginUser = async (req, res) => {
 
     const jwttoken = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "24h" });
 
-    res.cookie("token", jwttoken, { maxAge: 1000 * 60 * 60 * 24 })
+    res.cookie("token", jwttoken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // MS expires in 24 hrs
+      sameSite: "strict",
+    })
 
     res.status(201).json({ success: true, message: "user login successfully", data: user, token: jwttoken });
   } catch (err) {
@@ -104,13 +108,13 @@ const getProfile = async (req, res) => {
 
 }
 
-async function logoutUser( req, res ){
-try{
-  res.clearCookie('token');
-  res.status(200).json({success: true, message: "User Logout successfully"})
-}catch(err){
-  res.status(500).json({success: false, message: "Error at user loggout", error: err.message})
-}
+async function logoutUser(req, res) {
+  try {
+    res.clearCookie('token');
+    res.status(200).json({ success: true, message: "User Logout successfully" })
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error at user loggout", error: err.message })
+  }
 }
 
 
